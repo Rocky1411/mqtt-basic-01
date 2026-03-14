@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MQTT Dashboard</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        #messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; }
+        input, button { margin-top: 10px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>MQTT Dashboard</h1>
+    <div id="messages"></div>
+
+    <input type="text" id="msgInput" placeholder="Type a message" />
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const socket = io(); // connect to backend Socket.io
+        const messagesDiv = document.getElementById('messages');
+
+        // Listen for MQTT messages from backend
+        socket.on('mqtt-message', (msg) => {
+            const p = document.createElement('p');
+            p.textContent = 'MQTT: ' + msg;
+            messagesDiv.appendChild(p);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        // Send message from frontend to backend -> MQTT
+        function sendMessage() {
+            const input = document.getElementById('msgInput');
+            const msg = input.value;
+            if(msg) {
+                socket.emit('frontend-message', msg);
+                const p = document.createElement('p');
+                p.textContent = 'You: ' + msg;
+                messagesDiv.appendChild(p);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                input.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
